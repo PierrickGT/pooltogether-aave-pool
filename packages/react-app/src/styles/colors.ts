@@ -18,3 +18,4 @@ export const green = ['#2dceb3'];
 export const purple = ['#9f7aea', '#815acf', '#613abb', '#452588', '#2c0f5a'];
 
 export const red = ['#d11d13'];
+export const yellow = ['#ffc403', '#ff9303'];

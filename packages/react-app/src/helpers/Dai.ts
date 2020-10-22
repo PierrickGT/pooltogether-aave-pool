@@ -39,6 +39,6 @@ export const getUserDaiBalance = async (account: string, chainId: number, librar
     const daiTokenContract = new Contract(daiTokenAddress, abis.ERC20, library.getSigner(account));
 
     const userBalance = await nonConstantMethodCall(daiTokenContract, 'balanceOf', [account]);
-    console.log({userBalance})
+
     return userBalance;
 };

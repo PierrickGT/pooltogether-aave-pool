@@ -191,14 +191,10 @@ export const getAavePoolTicketsTotalSupply = async (chainId: number) => {
         provider,
     );
 
-    console.log({ aavePoolContract})
-
     const aavePoolPrizeStrategyAddress: string = await nonConstantMethodCall(
         aavePoolContract,
         'prizeStrategy',
     );
-
-    console.log({aavePoolPrizeStrategyAddress})
 
     const aavePoolPrizeStrategyContract = new Contract(
         aavePoolPrizeStrategyAddress,
@@ -253,13 +249,11 @@ export const depositDaiToAavePool = async (
         'ticket',
     );
 
-    console.log({ signer })
-
     const params = [
         signer._address,
         utils.parseEther(daiValue.toString()),
         aavePoolTicketAddress,
-        constants.AddressZero,
+        constants.AddressZero, // TODO: replace by referal address
         {
             gasLimit: 1500000,
         },
@@ -301,7 +295,7 @@ export const getUserTicketsBalance = async (account: string, chainId: number, li
 };
 
 export const withdrawWithTimelock = async (
-    daiValue: string,
+    daiValue: number,
     account: string,
     chainId: number,
     library: any,
@@ -319,7 +313,7 @@ export const withdrawWithTimelock = async (
 
     const params = [
         signer._address,
-        utils.parseEther(daiValue),
+        utils.parseEther(daiValue.toString()),
         controlledTokens[0],
         {
             gasLimit: 700000,
@@ -336,27 +330,93 @@ export const withdrawWithTimelock = async (
     );
 };
 
-export const getUserExitFee = async (daiValue: string, chainId: number) => {
-    const provider = getProvider(chainId);
+export const getUserExitFees = async (
+    daiValue: number,
+    account: string,
+    chainId: number,
+    library: any,
+) => {
+    const signer = library.getSigner(account);
 
     const aavePoolContract = new Contract(
         addresses[chainId].contracts.aavePool,
         abis.AavePrizePool,
-        provider,
+        signer,
     );
 
     const controlledTokens: string[] = await nonConstantMethodCall(aavePoolContract, 'tokens');
 
     const userExitFee = await aavePoolContract.callStatic.calculateEarlyExitFee(
-        controlledTokens[0],
-        utils.parseEther(daiValue),
+        signer._address,
+        controlledTokens[1],
+        utils.parseUnits(daiValue.toString(), DEFAULT_TOKEN_DECIMAL_PRECISION),
     );
 
     return userExitFee;
 };
 
+// export const fetchExitFee = async (
+//   networkName,
+//   usersAddress,
+//   prizePoolAddress,
+//   ticketAddress,
+//   amount,
+// ) => {
+//   const provider = await readProvider(networkName)
+//   const exitFees = {
+//     credit       : ethers.utils.bigNumberify(0),
+//     earlyExitFee : ethers.utils.bigNumberify(0),
+//   }
+
+//   try {
+//     const etherplexPrizePoolContract = contract(
+//       'prizePool',
+//       PrizePoolAbi,
+//       prizePoolAddress
+//     )
+
+//     const values = await batch(
+//       provider,
+//       etherplexPrizePoolContract
+//         .balanceOfCredit(usersAddress, ticketAddress)
+//         .calculateTimelockDuration(usersAddress, ticketAddress, amount)
+//         .calculateEarlyExitFee(usersAddress, ticketAddress, amount)
+//     )
+
+//     // Instant Withdrawal Credit/Fee
+//     exitFees.credit = values.prizePool.balanceOfCredit[0]
+
+//     exitFees.timelockDurationSeconds = values.prizePool.calculateTimelockDuration.durationSeconds
+//     exitFees.burnedCredit = values.prizePool.calculateEarlyExitFee.burnedCredit
+//     exitFees.exitFee = values.prizePool.calculateEarlyExitFee.exitFee
+//   }
+//   catch (e) {
+//     console.warn(e.message)
+//   }
+//   finally {
+//     return exitFees
+//   }
+// }
+
+export const calculateInstantWithdrawAmount = (withdrawAmount: number = 0, exitFee: BigNumber) => {
+    let instantWithdrawAmount;
+
+    if (exitFee && exitFee.gt(0)) {
+        instantWithdrawAmount = utils
+            .parseUnits(withdrawAmount.toString(), DEFAULT_TOKEN_DECIMAL_PRECISION)
+            .sub(exitFee);
+    } else {
+        instantWithdrawAmount = utils.parseUnits(
+            withdrawAmount.toString(),
+            DEFAULT_TOKEN_DECIMAL_PRECISION,
+        );
+    }
+
+    return instantWithdrawAmount;
+};
+
 export const withdrawInstantly = async (
-    daiValue: string,
+    daiValue: number,
     account: string,
     chainId: number,
     library: any,
@@ -371,17 +431,13 @@ export const withdrawInstantly = async (
     );
 
     const controlledTokens: string[] = await nonConstantMethodCall(aavePoolContract, 'tokens');
-
-    const exitFee = await getUserExitFee(daiValue, chainId);
+    const exitFees = await getUserExitFees(daiValue, account, chainId, library);
 
     const params = [
         signer._address,
-        utils.parseEther(daiValue),
-        controlledTokens[0],
-        exitFee,
-        {
-            gasLimit: 700000,
-        },
+        utils.parseUnits(daiValue.toString(), DEFAULT_TOKEN_DECIMAL_PRECISION),
+        controlledTokens[1],
+        exitFees.exitFee,
     ];
 
     dispatch(

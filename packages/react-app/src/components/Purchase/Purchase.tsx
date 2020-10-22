@@ -37,10 +37,12 @@ const StyledNexDrawDate = styled.p`
     margin-bottom: ${spacingUnit(4)};
 `;
 
-const StyledCurrency = styled.span`
+const StyledCurrency = styled.p`
+    display: inline;
     font-size: ${fontSize.medium};
     font-weight: bold;
-    margin-left: ${spacingUnit()};
+    margin: 0 0 0 ${spacingUnit()};
+    vertical-align: middle;
 `;
 
 const StyledLabelContainer = styled.span`
@@ -92,7 +94,7 @@ const StyledErrorMessage = styled(ErrorMessage)`
 const InputDaiSuffix: React.FC = () => {
     return (
         <React.Fragment>
-            <Dai width={20} />
+            <Dai width={22} />
             <StyledCurrency>DAI</StyledCurrency>
         </React.Fragment>
     );
@@ -233,17 +235,6 @@ const PurchaseTickets: React.FC = (): any => {
         const formattedAavePoolTotalSupply = Number(
             utils.formatUnits(aavePoolTotalSupply.toString(), DEFAULT_TOKEN_DECIMAL_PRECISION),
         );
-
-        // console.log('userDaiBalance', utils.formatUnits(userDaiBalance.toString(), DEFAULT_TOKEN_DECIMAL_PRECISION));
-
-        // console.log(
-        //     'aavePoolTotalSupply parseUnits',
-        //     Number(utils.parseUnits(aavePoolTotalSupply.toString(), DEFAULT_TOKEN_DECIMAL_PRECISION)),
-        // );
-        // console.log(
-        //     'aavePoolTotalSupply formatUnits',
-        //     Number(utils.formatUnits(aavePoolTotalSupply.toString(), DEFAULT_TOKEN_DECIMAL_PRECISION)),
-        // );
 
         setDaiBalance(formattedUserDaiBalance);
         setAavePoolTotalSupply(formattedAavePoolTotalSupply);

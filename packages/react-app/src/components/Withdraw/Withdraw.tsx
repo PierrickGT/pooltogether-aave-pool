@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
-import { Button, Input } from 'antd';
+import { Button, Checkbox, Input } from 'antd';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { utils } from 'ethers';
 import {
     ErrorMessage,
@@ -21,9 +22,16 @@ import * as Yup from 'yup';
 
 import TransactionProgress from 'components/Transaction';
 import { DEFAULT_TOKEN_DECIMAL_PRECISION } from 'Constants';
-import { getUserTicketsBalance, withdrawWithTimelock } from 'helpers/Pool';
-import Dai from 'images/Dai';
-import { green, purple, red } from 'styles/colors';
+import { formatBigNumberToNumber } from 'helpers/Bignumber';
+import {
+    calculateInstantWithdrawAmount,
+    getUserExitFees,
+    getUserTicketsBalance,
+    withdrawInstantly,
+    withdrawWithTimelock,
+} from 'helpers/Pool';
+import PoolTogetherToken from 'images/PoolTogetherToken';
+import { green, purple, red, yellow } from 'styles/colors';
 import { size as fontSize } from 'styles/fonts';
 import { spacingUnit } from 'styles/variables';
 
@@ -31,7 +39,7 @@ const StyledCurrency = styled.p`
     display: inline;
     font-size: ${fontSize.medium};
     font-weight: bold;
-    margin-left: ${spacingUnit()};
+    margin: 0 0 0 ${spacingUnit()};
     vertical-align: middle;
 `;
 
@@ -74,17 +82,52 @@ const StyledInput = styled(Input as any)`
     }
 `;
 
+const InputContainer = styled.div`
+    flex: 1;
+`;
+
+const WithdrawInstantContainer = styled.div`
+    height: ${rem(65)};
+    text-align: left;
+`;
+
+const StyledCheckbox = styled(Checkbox)`
+    color: ${yellow[0]};
+    font-size: ${fontSize.h4};
+    padding: ${spacingUnit()} 0 0 ${spacingUnit(2)};
+
+    .ant-checkbox {
+        .ant-checkbox-inner {
+            border-color: ${yellow[1]};
+        }
+    }
+
+    .ant-checkbox.ant-checkbox-checked {
+        .ant-checkbox-inner {
+            background-color: ${yellow[1]};
+            border-color: ${yellow[1]};
+        }
+    }
+`;
+
+const StyledWithdrawInstantMessage = styled.p`
+    color: ${yellow[0]};
+    font-size: ${fontSize.medium};
+    margin: ${spacingUnit()} 0 0;
+    text-align: right;
+`;
+
 const StyledErrorMessage = styled(ErrorMessage)`
     color: ${red[0]};
     margin: ${spacingUnit()} 0 0 ${spacingUnit(2)};
     text-align: left;
 `;
 
-const InputDaiSuffix: React.FC = () => {
+const InputTicketSuffix: React.FC = () => {
     return (
         <React.Fragment>
-            <Dai width={20} />
-            <StyledCurrency>DAI</StyledCurrency>
+            <PoolTogetherToken width={25} />
+            <StyledCurrency>TICKET</StyledCurrency>
         </React.Fragment>
     );
 };
@@ -92,7 +135,7 @@ const InputDaiSuffix: React.FC = () => {
 const StyledForm = styled(Form)`
     display: flex;
     flex-direction: column;
-    min-height: ${rem(198)};
+    min-height: ${rem(254)};
 `;
 
 const SubmitButtonContainer = styled.div`
@@ -100,7 +143,7 @@ const SubmitButtonContainer = styled.div`
     display: flex;
     flex: 1;
     justify-content: flex-end;
-    margin-top: ${spacingUnit(3)};
+    margin-top: ${spacingUnit(2)};
 `;
 
 const Withdraw: React.FC = (): any => {
@@ -109,18 +152,21 @@ const Withdraw: React.FC = (): any => {
     const dispatch = useDispatch();
 
     const [userTicketsBalance, setUserTicketsBalance] = useState(0);
-    const [userExitFee, setUserExitFee] = useState(0);
+    const [burnedCredit, setBurnedCredit] = useState(0);
+    const [exitFee, setExitFee] = useState(0);
+    const [instantWithdrawAmount, setInstantWithdrawAmount] = useState(0);
+    const [isWithdrawInstant, setIsWithdrawInstant] = useState(false);
     const [formSubmitted, setFormSubmitted] = useState(false);
 
     interface FormValues {
-        withdraw: string;
+        withdraw: string | number;
     }
 
     const formInitialValues: FormValues = {
         withdraw: '',
     };
 
-    const daiInputValidationSchema = Yup.object({
+    const ticketInputValidationSchema = Yup.object({
         withdraw: Yup.number()
             .min(1, 'The value must be superior to 0')
             .max(userTicketsBalance, "You don't have enough tickets")
@@ -134,13 +180,38 @@ const Withdraw: React.FC = (): any => {
         type: string;
     };
 
-    const RenderDaiInput: React.FC<DaInput> = ({
+    const RenderTicketInput: React.FC<DaInput> = ({
         field: { name: fieldName, ...fieldRest },
         form,
         title,
         type,
     }) => {
-        const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const setInstantWithdrawValues = async (formValues: FormValues) => {
+            const userExitFee = await getUserExitFees(
+                Number(formValues.withdraw),
+                account as string,
+                chainId as number,
+                library,
+            );
+
+            const { burnedCredit, exitFee } = userExitFee;
+
+            const formattedInstantWithdrawAmount = formatBigNumberToNumber(
+                calculateInstantWithdrawAmount(Number(formValues.withdraw), exitFee),
+            );
+
+            const formattedExitFee = formatBigNumberToNumber(exitFee);
+            const formattedBurnedCredit = formatBigNumberToNumber(burnedCredit);
+
+            setBurnedCredit(formattedBurnedCredit);
+            setExitFee(formattedExitFee);
+            setInstantWithdrawAmount(formattedInstantWithdrawAmount);
+        };
+
+        const handleInput = async (
+            event: React.ChangeEvent<HTMLInputElement>,
+            formValues: FormValues,
+        ) => {
             // User can only input round numbers
             event.target.value = event.target.value.slice(0, Infinity);
         };
@@ -149,29 +220,66 @@ const Withdraw: React.FC = (): any => {
             form.setFieldValue(fieldName, userTicketsBalance);
         };
 
+        const handleInstantWithdraw = async (
+            event: CheckboxChangeEvent,
+            formValues: FormValues,
+        ) => {
+            await setInstantWithdrawValues(formValues);
+            setIsWithdrawInstant(!isWithdrawInstant);
+        };
+
+        useEffect(() => {
+            if (isWithdrawInstant) {
+                setInstantWithdrawValues(form.values);
+            }
+        }, [form.values, form.values.withdraw]);
+
         const fieldHasErrors = form.errors[fieldName as keyof FormikErrors<FormValues>];
 
         return (
             <React.Fragment>
-                <StyledLabelContainer>
-                    <label htmlFor={fieldName}>{title}</label>
-                    <StyledBalance
-                        onClick={handleMaxBalance}
-                    >{`Max - Balance: ${userTicketsBalance}`}</StyledBalance>
-                </StyledLabelContainer>
-                <StyledInput
-                    {...fieldRest}
-                    type={type}
-                    id={fieldName}
-                    name={fieldName}
-                    onInput={(event: React.ChangeEvent<HTMLInputElement>) =>
-                        handleInput(event as React.ChangeEvent<HTMLInputElement>)
-                    }
-                    size="large"
-                    style={fieldHasErrors && { borderColor: `${red[0]}` }}
-                    suffix={<InputDaiSuffix />}
-                />
-                <StyledErrorMessage name={fieldName} component="div" />
+                <InputContainer>
+                    <StyledLabelContainer>
+                        <label htmlFor={fieldName}>{title}</label>
+                        <StyledBalance
+                            onClick={handleMaxBalance}
+                        >{`Max - Balance: ${userTicketsBalance}`}</StyledBalance>
+                    </StyledLabelContainer>
+                    <StyledInput
+                        {...fieldRest}
+                        type={type}
+                        id={fieldName}
+                        name={fieldName}
+                        onInput={(event: React.ChangeEvent<HTMLInputElement>) =>
+                            handleInput(event as React.ChangeEvent<HTMLInputElement>, form.values)
+                        }
+                        size="large"
+                        style={fieldHasErrors && { borderColor: `${red[0]}` }}
+                        suffix={<InputTicketSuffix />}
+                    />
+                    <StyledErrorMessage name={fieldName} component="div" />
+                </InputContainer>
+                <WithdrawInstantContainer>
+                    <StyledCheckbox
+                        checked={isWithdrawInstant}
+                        onChange={(event) => handleInstantWithdraw(event, form.values)}
+                    >
+                        Withdraw instantly
+                    </StyledCheckbox>
+                    {isWithdrawInstant && (
+                        <StyledWithdrawInstantMessage>
+                            You will receive {instantWithdrawAmount} Aave Pool{' '}
+                            {pluralize('ticket', instantWithdrawAmount)}{' '}
+                            {exitFee === 0 ? (
+                                <React.Fragment>
+                                    and burn {burnedCredit} from your credit
+                                </React.Fragment>
+                            ) : (
+                                <React.Fragment>and forfeit {exitFee} as interest</React.Fragment>
+                            )}
+                        </StyledWithdrawInstantMessage>
+                    )}
+                </WithdrawInstantContainer>
             </React.Fragment>
         );
     };
@@ -179,7 +287,7 @@ const Withdraw: React.FC = (): any => {
     const RenderForm: React.FC<{ values: FormValues }> = ({ values }) => (
         <StyledForm>
             <Field
-                component={RenderDaiInput}
+                component={RenderTicketInput}
                 type="number"
                 name="withdraw"
                 title="How many tickets do you wish to withdraw?"
@@ -196,13 +304,24 @@ const Withdraw: React.FC = (): any => {
     );
 
     const handleSubmit = (values: FormValues, formikHelpers: FormikHelpers<FormValues>) => {
-        withdrawWithTimelock(
-            values.withdraw,
-            account as string,
-            chainId as number,
-            library,
-            dispatch,
-        );
+        if (isWithdrawInstant) {
+            withdrawInstantly(
+                Number(values.withdraw),
+                account as string,
+                chainId as number,
+                library,
+                dispatch,
+            );
+        } else {
+            withdrawWithTimelock(
+                Number(values.withdraw),
+                account as string,
+                chainId as number,
+                library,
+                dispatch,
+            );
+        }
+
         setFormSubmitted(true);
     };
 
@@ -230,7 +349,7 @@ const Withdraw: React.FC = (): any => {
             <Formik
                 initialValues={formInitialValues}
                 onSubmit={handleSubmit}
-                validationSchema={daiInputValidationSchema}
+                validationSchema={ticketInputValidationSchema}
                 validateOnBlur
             >
                 {({ values }) =>

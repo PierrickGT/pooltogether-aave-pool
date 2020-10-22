@@ -78,10 +78,10 @@ export const sendTransaction = (
 ): AppThunk => async (dispatch) => {
     dispatch(resetTransaction());
 
-    if (params && params[0] && params[0]._ethersType === 'BigNumber') {
+    if (params && params[1] && params[1]._isBigNumber) {
         dispatch(
             sendTransactionStart(
-                Number(utils.formatUnits(params[0].toString(), DEFAULT_TOKEN_DECIMAL_PRECISION)),
+                Number(utils.formatUnits(params[1].toString(), DEFAULT_TOKEN_DECIMAL_PRECISION)),
             ),
         );
     } else {
