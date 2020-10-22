@@ -1,0 +1,72 @@
+@include spacing-helpers;
+
+.inline-block {
+    display: inline-block;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-align-self-end {
+    align-self: flex-end;
+}
+
+.flex-align-center {
+    align-items: center;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.flex-space-between {
+    justify-content: space-between;
+}
+
+.font-size-small {
+    font-size: $font-size-small;
+}
+
+.font-weight-regular {
+    font-weight: $font-weight !important;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.vertical-align-middle {
+    vertical-align: middle;
+}
+
+.hide-sm {
+    @include media-query-max(sm) {
+        display: none !important;
+    }
+}
+
+.hide-md {
+    @include media-query-only(md) {
+        display: none !important;
+    }
+}
+
+.hide-lg {
+    @include media-query-min(md) {
+        display: none !important;
+    }
+}
+
+.hide-from-lg {
+    @include media-query-min(lg) {
+        display: none !important;
+    }
+}
+
+// Hide visually and from screen readers:
+// http://juicystudio.com/article/screen-readers-display-none.php
+.hide {
+    display: none !important;
+    visibility: hidden;
+}

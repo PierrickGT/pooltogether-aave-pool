@@ -1,0 +1,64 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "contract TwoWinnersProxyFactory",
+        "name": "_twoWinnersProxyFactory",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldPrizeStrategy",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "prizeStrategy",
+        "type": "address"
+      }
+    ],
+    "name": "CreatedTwoWinners",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract PeriodicPrizeStrategy",
+        "name": "prizeStrategy",
+        "type": "address"
+      }
+    ],
+    "name": "createTwoWinners",
+    "outputs": [
+      {
+        "internalType": "contract TwoWinners",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "twoWinnersProxyFactory",
+    "outputs": [
+      {
+        "internalType": "contract TwoWinnersProxyFactory",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

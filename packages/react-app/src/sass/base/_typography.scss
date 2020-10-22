@@ -1,0 +1,48 @@
+@at-root {
+    @include font-face(
+        'Soleil',
+        '../../fonts/soleil-light-webfont',
+        200,
+        normal,
+        woff2 woff ttf eot svg
+    );
+    @include font-face(
+        'Soleil',
+        '../../fonts/soleil-regular-webfont',
+        400,
+        normal,
+        woff2 woff ttf eot svg
+    );
+    @include font-face(
+        'Soleil',
+        '../../fonts/soleil-semibold-webfont',
+        500,
+        normal,
+        woff2 woff ttf eot svg
+    );
+    @include font-face(
+        'Soleil',
+        '../../fonts/soleil-bold-webfont',
+        600,
+        normal,
+        woff2 woff ttf eot svg
+    );
+}
+
+.text--bold {
+    font-weight: 600;
+}
+
+.text--primary {
+    color: $brand-AAA-color;
+}
+
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &::before {
+        float: right;
+    }
+}

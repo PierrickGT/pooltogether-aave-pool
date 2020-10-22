@@ -1,0 +1,304 @@
+// ------------------------------------
+//    #MIXINS
+// ------------------------------------
+
+/*doc
+---
+title: Font face
+name: font-face
+category: Mixins
+---
+
+Font face shorteners
+
+```
+// Usage:
+
+@include font-face('Roboto', 'fonts/roboto-regular', $font-weight, normal, eot woff2 woff ttf svg);
+@include font-face('Roboto', 'fonts/roboto-bold', $font-weight-bold, normal, woff2 woff ttf);
+@include font-face('Montserrat', 'fonts/montserrat-medium', $font-weight-title, normal, eot woff2 woff ttf svg);
+```
+*/
+@mixin font-face($name, $path, $weight: null, $style: null, $exts: eot woff2 woff ttf svg) {
+    $src: null;
+    $extmods: (
+        eot: "?",
+        svg: "#" + str-replace($name, " ", "_")
+    );
+    $formats: (
+        otf: "opentype",
+        ttf: "truetype"
+    );
+
+    @each $ext in $exts {
+        $extmod: if(map-has-key($extmods, $ext), $ext + map-get($extmods, $ext), $ext);
+        $format: if(map-has-key($formats, $ext), map-get($formats, $ext), $ext);
+        $src: append($src, url(quote($path + "." + $extmod)) format(quote($format)), comma);
+    }
+
+    @at-root {
+        @font-face {
+            font-family: quote($name);
+            font-style: $style;
+            font-weight: $weight;
+            src: $src;
+        }
+    }
+}
+
+/*doc
+---
+title: Media query
+name: media-query
+category: Mixins
+---
+
+Media queries shorteners
+
+```
+// Usage:
+
+.h1 {
+    font-size: rem-calc(8);
+
+    // use the upper bound of the range
+    @include media-query-max(sm) {
+        font-size: rem-calc(13);
+    }
+
+    // use both bounds of the range
+    @include media-query-only(md) {
+        font-size: rem-calc(16);
+    }
+
+    // use the lower bound of the range
+    @include media-query-min(lg) {
+        font-size: rem-calc(20);
+    }
+}
+```
+*/
+@mixin media-query(
+    $media-query-size,
+    $lower-bound: false,
+    $upper-bound: false
+) {
+    @if map-has-key($ranges, $media-query-size) {
+        $range: map-get($ranges, $media-query-size);
+
+        @if $lower-bound and $upper-bound {
+            @media (min-width: lower-bound($range)) and (max-width: upper-bound($range)) { @content; }
+        }
+
+        @else if $lower-bound {
+            @media (min-width: lower-bound($range)) { @content; }
+        }
+
+        @else if $upper-bound {
+            @media (max-width: upper-bound($range)) { @content; }
+        }
+    }
+
+    @else {
+        @error "Invalid breakpoint range value `#{$media-query-size}`";
+    }
+}
+
+@mixin media-query-max($media-query-size) {
+    @if type-of($media-query-size) == number {
+        @media (max-width: $media-query-size) { @content; }
+    }
+
+    @else {
+        @include media-query($media-query-size, $upper-bound: true) { @content; }
+    }
+}
+
+@mixin media-query-min($media-query-size) {
+    @if type-of($media-query-size) == number {
+        @media (min-width: $media-query-size) { @content; }
+    }
+
+    @else {
+        @include media-query($media-query-size, $lower-bound: true) { @content; }
+    }
+}
+
+@mixin media-query-only($media-query-size) {
+    @include media-query($media-query-size, $lower-bound: true, $upper-bound: true) { @content; }
+}
+
+/*doc
+---
+title: Hover
+name: hover
+category: Mixins
+---
+
+Handle hover only on non-touch devices (class must be set by JS)
+Avoid iOS bug https://www.nczonline.net/blog/2012/07/05/ios-has-a-hover-problem/
+
+```
+// Usage:
+// a {
+//     @include hover() {
+//         color: red;
+//     }
+// }
+```
+*/
+@mixin hover() {
+    .no-touch &:hover {
+        @content;
+    }
+}
+
+/*doc
+---
+title: Padding
+name: padding
+category: Mixins
+---
+
+Set padding to a multiple of $container-spacing-unit (default: 1) to desired edges (default: all)
+
+```
+// Usage:
+
+@include padding;
+@include padding(1, left);
+@include padding(2, top bottom);
+```
+*/
+@mixin padding ($mutliple: 1, $edges: null) {
+    @if $edges == null {
+        padding: $container-spacing-unit * $mutliple;
+    }
+
+    @else {
+        @each $edge in $edges {
+            padding-#{$edge}: $container-spacing-unit * $mutliple;
+        }
+    }
+}
+
+/*doc
+---
+title: Margin
+name: margin
+category: Mixins
+---
+
+Set margin to a multiple of $container-spacing-unit (default: 1) to desired edges (default: all)
+
+```
+// Usage:
+
+@include margin;
+@include margin(1, right);
+@include margin(2, left right);
+```
+
+*/
+@mixin margin ($mutliple: 1, $edges: null) {
+    @if $edges == null {
+        margin: $container-spacing-unit * $mutliple !important;
+    }
+
+    @else {
+        @each $edge in $edges {
+            margin-#{$edge}: $container-spacing-unit * $mutliple !important;
+        }
+    }
+}
+
+/*doc
+---
+title: Spacing
+name: spacing
+category: Mixins
+---
+
+Spacing helpers for all direction (top, left, bottom, right).
+Prefer use .baseline than margin-bottom for define the vertical rythm.
+Set a 1.5rem (from $base-margin) margin or padding for a given direction.
+
+You can suffix the class by `-double` to set 3em :
+
+```html_example
+<div class="margin-left">margin-left</div>
+<div class="padding-left" style="border: 1px solid black">padding-left</div>
+<div class="margin-left-double">margin-left-double</div>
+```
+*/
+
+// On all screen resolutions
+@mixin spacing-helpers($suffix: '') {
+    @each $direction in $directions {
+        .no-margin#{$suffix},
+        .no-margin-#{$direction}#{$suffix} { margin-#{$direction}: 0 !important; }
+
+        .margin#{$suffix},
+        .margin-#{$direction}#{$suffix} {
+            @include margin(1, $direction);
+        }
+
+        .margin-double#{$suffix},
+        .margin-#{$direction}-double#{$suffix} {
+            @include margin(2, $direction);
+        }
+
+        .margin-triple#{$suffix},
+        .margin-#{$direction}-triple#{$suffix} {
+            @include margin(3, $direction);
+        }
+
+        .margin-quadruple#{$suffix},
+        .margin-#{$direction}-quadruple#{$suffix} {
+            @include margin(4, $direction);
+        }
+
+        .margin-half#{$suffix},
+        .margin-#{$direction}-half#{$suffix} {
+            @include margin(0.5, $direction);
+        }
+
+        .margin-small#{$suffix},
+        .margin-#{$direction}-small#{$suffix} {
+            @include margin(0.25, $direction);
+        }
+
+        .no-padding#{$suffix},
+        .no-padding-#{$direction}#{$suffix} { padding-#{$direction}: 0 !important; }
+
+        .padding#{$suffix},
+        .padding-#{$direction}#{$suffix} {
+            @include padding(1, $direction);
+        }
+
+        .padding-double#{$suffix},
+        .padding-#{$direction}-double#{$suffix} {
+            @include padding(2, $direction);
+        }
+
+        .padding-triple#{$suffix},
+        .padding-#{$direction}-triple#{$suffix} {
+            @include padding(3, $direction);
+        }
+
+        .padding-quadruple#{$suffix},
+        .padding-#{$direction}-quadruple#{$suffix} {
+            @include padding(4, $direction);
+        }
+
+        .padding-half#{$suffix},
+        .padding-#{$direction}-half#{$suffix} {
+            @include padding(0.5, $direction);
+        }
+
+        .padding-small#{$suffix},
+        .padding-#{$direction}-small#{$suffix} {
+            @include padding(0.25, $direction);
+        }
+    }
+}

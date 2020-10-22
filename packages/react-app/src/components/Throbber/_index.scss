@@ -1,0 +1,32 @@
+.throbber {
+    text-align: center;
+}
+
+.throbber__bounce {
+    animation: bounce 1.4s infinite ease-in-out both;
+    background-color: #2c0f5a;
+    border-radius: 100%;
+    display: inline-block;
+    height: $container-spacing-unit * 3;
+    width: $container-spacing-unit * 3;
+}
+
+.throbber__bounce--1 {
+    animation-delay: -0.32s;
+}
+
+.throbber__bounce--2 {
+    animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
+
+    40% {
+        transform: scale(1);
+    }
+}

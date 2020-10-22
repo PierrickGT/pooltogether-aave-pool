@@ -1,0 +1,108 @@
+// Breakpoints
+$xs-range: (0, 20em); // up to 320
+$sm-range: (20.0625em, 46.875em); // up to 750
+$md-range: (46.9375em, 63.9375em); // up to 1023
+$lg-range: (64em, 90em); // up to 1440
+$xl-range: (90.0625em, 120em); // up to 1920
+$xxl-range: (120.0625em, 99999999em);
+$backdrop-breakpoint: 970px;
+
+$ranges: (
+    xs: $xs-range,
+    sm: $sm-range,
+    md: $md-range,
+    lg: $lg-range,
+    xl: $xl-range,
+    xxl: $xxl-range,
+);
+
+$directions: (top, right, bottom, left);
+
+// Colors
+$black: #000;
+$white: white;
+
+// AAA Colors
+$brand-AAA-color: #0268ed; // New $blue3
+$red-AAA-color: #d11d13;
+
+// Primary Colors
+$blue1: #1b365d;
+$blue5: #1432be;
+
+// Neutral Colors
+$grey1: #3a3a3a;
+$grey2: #9a9a9a;
+$grey3: #e2e2e2;
+$grey4: #eee;
+$grey5: #f2f3f4;
+
+// Statement Colors
+$statement-color1: #f0a00a;
+$statement-color2: $red-AAA-color;
+
+// Fonts
+$font-family: 'Soleil', sans-serif;
+$font-family-icons-set: 'MA_icons_set', sans-serif;
+
+// Fonts size
+$font-size-base: 16px;
+$font-size-intro: rem-calc(18);
+$font-size-small: rem-calc(14);
+
+$font-h1: rem-calc(28);
+$font-h2: rem-calc(24);
+$font-h3: rem-calc(20);
+$font-h4: rem-calc(17);
+$font-h5: rem-calc(15);
+
+$font-h1-sm: $font-h2;
+$font-h2-sm: $font-h3;
+$font-h3-sm: rem-calc(18);
+$font-h4-sm: $font-h5;
+
+// Fonts weight
+$font-weight: 400;
+$font-weight-title: 500;
+$font-weight-bold: 700;
+
+// Layout
+$header-height: rem-calc(66);
+$header-height-small: rem-calc(48);
+$left-container-width: 67%;
+$left-container-max-width: rem-calc(970);
+$navigation-height: rem-calc(104);
+$navigation-height-small: rem-calc(56);
+$progress-bar-height: rem-calc(8);
+$progress-bar-height-small: rem-calc(5);
+$right-backdrop-margin-left: rem-calc(165);
+
+// Line height
+$line-height-base: rem-calc(24);
+
+// Radius
+$global-radius: 4px;
+
+// Spacing
+$container-spacing-unit: rem-calc(8);
+$panel-content-h-padding: rem-calc(20);
+
+// Input
+
+$default-focus-color: $brand-AAA-color;
+$input-padding-desktop: rem-calc(13) $container-spacing-unit * 2;
+$input-padding-mobile: $container-spacing-unit rem-calc(11);
+
+// Transitions
+$transition-duration: 0.3s;
+
+// ZIndex
+$backdrop-zindex: -1;
+$header-zindex: 10;
+$modal-zindex: 11;
+$progress-bar-zindex: 10;
+$navigation-zindex: 3;
+$suggestion-list-zindex: 4;
+
+$radio-rect-zindex: 1;
+$radio-rect-checked-zindex: 2;

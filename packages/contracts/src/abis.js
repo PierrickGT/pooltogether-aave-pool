@@ -1,9 +1,22 @@
-import erc20Abi from "./abis/erc20.json";
-import ownableAbi from "./abis/ownable.json";
 
-const abis = {
-  erc20: erc20Abi,
-  ownable: ownableAbi,
+import AavePrizePool from './abis/AavePrizePool';
+import ATokenInterface from './abis/ATokenInterface';
+import ERC20 from './abis/ERC20';
+import IERC20 from './abis/IERC20.json';
+import LendingPoolAddressesProviderInterface from './abis/LendingPoolAddressesProviderInterface.json';
+import LendingPoolInterface from './abis/LendingPoolInterface.json';
+import PrizePoolInterface from './abis/PrizePoolInterface.json';
+import SingleRandomWinner from './abis/SingleRandomWinner.json';
+import TwoWinners from './abis/TwoWinners.json';
+
+export default {
+  AavePrizePool,
+  ATokenInterface,
+  ERC20,
+  IERC20,
+  LendingPoolAddressesProviderInterface,
+  LendingPoolInterface,
+  PrizePoolInterface,
+  SingleRandomWinner,
+  TwoWinners
 };
-
-export default abis;

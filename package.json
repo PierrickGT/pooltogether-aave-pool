@@ -1,5 +1,5 @@
 {
-  "name": "@project/monorepo",
+  "name": "@pooltogether-aave-pool/monorepo",
   "version": "1.0.0",
   "keywords": [
     "ethereum",
@@ -9,15 +9,15 @@
   ],
   "private": true,
   "scripts": {
-    "subgraph:auth": "yarn workspace @project/subgraph auth",
-    "subgraph:codegen": "yarn workspace @project/subgraph codegen",
-    "subgraph:build": "yarn workspace @project/subgraph build",
-    "subgraph:deploy": "yarn workspace @project/subgraph deploy",
-    "react-app:build": "yarn workspace @project/react-app build",
-    "react-app:eject": "yarn workspace @project/react-app eject",
-    "react-app:ipfs": "yarn workspace @project/react-app ipfs",
-    "react-app:start": "yarn workspace @project/react-app start",
-    "react-app:test": "yarn workspace @project/react-app test"
+    "subgraph:auth": "yarn workspace @pooltogether-aave-pool/subgraph auth",
+    "subgraph:codegen": "yarn workspace @pooltogether-aave-pool/subgraph codegen",
+    "subgraph:build": "yarn workspace @pooltogether-aave-pool/subgraph build",
+    "subgraph:deploy": "yarn workspace @pooltogether-aave-pool/subgraph deploy",
+    "react-app:build": "yarn workspace @pooltogether-aave-pool/react-app build",
+    "react-app:eject": "yarn workspace @pooltogether-aave-pool/react-app eject",
+    "react-app:ipfs": "yarn workspace @pooltogether-aave-pool/react-app ipfs",
+    "react-app:start": "yarn workspace @pooltogether-aave-pool/react-app start",
+    "react-app:test": "yarn workspace @pooltogether-aave-pool/react-app test"
   },
   "workspaces": {
     "nohoist": [
