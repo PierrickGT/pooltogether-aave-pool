@@ -54,159 +54,21 @@ export const getPrizePeriodRemainingSeconds = async (chainId: number) => {
     return prizePeriodRemainingSeconds;
 };
 
-export const getAavePoolPrize = async (chainId: number) => {
-    const provider = getProvider(chainId);
+export const getAavePoolPrize = async (account: string, chainId: number, library: any) => {
+    const signer = library.getSigner(account);
 
     const aavePoolContract = new Contract(
         addresses[chainId].contracts.aavePool,
         abis.AavePrizePool,
-        provider,
+        signer,
     );
 
-    const aavePoolAwardBalance: BigNumber = await nonConstantMethodCall(
-        aavePoolContract,
-        'awardBalance',
-    );
-
-    const aavePoolPrizeStrategyAddress: string = await nonConstantMethodCall(
-        aavePoolContract,
-        'prizeStrategy',
-    );
-
-    const aaveLendingPoolAddressesProviderContract = new Contract(
-        getLendingPoolAddressesProviderAddress(chainId),
-        abis.LendingPoolAddressesProviderInterface,
-        provider,
-    );
-
-    const aaveLendingPoolAddress: string = await nonConstantMethodCall(
-        aaveLendingPoolAddressesProviderContract,
-        'getLendingPool',
-    );
-
-    const aTokenContract = new Contract(
-        addresses[chainId].tokens.aDai,
-        abis.ATokenInterface,
-        provider,
-    );
-
-    const aaveLendingPoolContract = new Contract(
-        aaveLendingPoolAddress,
-        abis.LendingPoolInterface,
-        provider,
-    );
-
-    const aavePoolPrizeStrategyContract = new Contract(
-        aavePoolPrizeStrategyAddress,
-        abis.SingleRandomWinner,
-        provider,
-    );
-
-    const aavePoolSponsorshipAddress: string = await nonConstantMethodCall(
-        aavePoolPrizeStrategyContract,
-        'sponsorship',
-    );
-
-    const aavePoolTicketAddress: string = await nonConstantMethodCall(
-        aavePoolPrizeStrategyContract,
-        'ticket',
-    );
-
-    // const aavePoolTokenListenerAddress: string = await nonConstantMethodCall(
-    //     aavePoolPrizeStrategyContract,
-    //     'tokenListener',
-    // );
-
-    // const aavePoolRngAddress: string = await nonConstantMethodCall(
-    //     aavePoolPrizeStrategyContract,
-    //     'rng',
-    // );
-
-    const aavePoolPrizePeriodRemainingSeconds: BigNumber = await nonConstantMethodCall(
-        aavePoolPrizeStrategyContract,
-        'prizePeriodRemainingSeconds',
-    );
-
-    const aavePoolTicketContract = new Contract(aavePoolTicketAddress, abis.ERC20, provider);
-
-    const aavePoolSponsorshipContract = new Contract(
-        aavePoolSponsorshipAddress,
-        abis.ERC20,
-        provider,
-    );
-
-    const aavePoolTicketTotalSupply: BigNumber = await nonConstantMethodCall(
-        aavePoolTicketContract,
-        'totalSupply',
-    );
-
-    const aavePoolSponsorshipTotalSupply: BigNumber = await nonConstantMethodCall(
-        aavePoolSponsorshipContract,
-        'totalSupply',
-    );
-
-    // const aavePoolMaxExitFeeMantissa: BigNumber = await nonConstantMethodCall(
-    //     aavePoolContract,
-    //     'maxExitFeeMantissa',
-    // );
-
-    // const aavePoolCreditPlanOf: BigNumber[] = await nonConstantMethodCall(
-    //     aavePoolContract,
-    //     'creditPlanOf',
-    //     [aavePoolTicketAddress],
-    // );
-
-    // const [creditRateMantissa, creditLimitMantissa] = aavePoolCreditPlanOf;
-
-    const aavePoolAccountedBalance: BigNumber = await nonConstantMethodCall(
-        aavePoolContract,
-        'accountedBalance',
-    );
-
-    const aTokenUnderlyingAssetAddress: string = await nonConstantMethodCall(
-        aTokenContract,
-        'underlyingAssetAddress',
-    );
-
-    const {
-        liquidityRate: aaveLendingPoolLiquidityRate,
-    } = await nonConstantMethodCall(aaveLendingPoolContract, 'getUserReserveData', [
-        aTokenUnderlyingAssetAddress,
-        AAVE_PRIZE_POOL_ADDRESS,
-    ]);
-
-    // aaveLendingPoolLiquidityRate is in Ray units (27 decimals) so we need to convert it in Wad units (18 decimals)
-    const aTokenSupplyRatePerBlock: BigNumber = aaveLendingPoolLiquidityRate.div(
-        BigNumber.from(Math.pow(10, 9)),
-    );
-
-    const aavePoolTotalSupply: BigNumber = aavePoolTicketTotalSupply.add(
-        aavePoolSponsorshipTotalSupply,
-    );
-
-    const estimatedPoolPrize: BigNumber = calculateEstimatedPoolPrize(
-        aavePoolAwardBalance,
-        aavePoolTotalSupply,
-        aTokenSupplyRatePerBlock,
-        aavePoolPrizePeriodRemainingSeconds,
-    );
-
-    // const prize = pt.utils.calculatePrize(
-    //     aavePoolBalance,
-    //     aavePoolAccountedBalance,
-    //     currentDraw.feeFraction,
-    // );
+    const aavePoolAwardBalance: BigNumber = await aavePoolContract.callStatic.captureAwardBalance();
 
     const prizeInDai = utils.formatUnits(aavePoolAwardBalance);
 
-    const prizeEstimateInDai = utils.formatUnits(
-        estimatedPoolPrize,
-        DEFAULT_TOKEN_DECIMAL_PRECISION,
-    );
-
     return {
         prizeInDai,
-        prizeEstimateInDai,
     };
 };
 

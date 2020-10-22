@@ -23,8 +23,8 @@ const AaveLogo: React.FC<AaveLogoProps> = ({ width = 60 }) => (
                 gradientTransform="matrix(55.73 0 0 -61.13 39255.9 47634.81)"
                 gradientUnits="userSpaceOnUse"
             >
-                <stop offset="0" stop-color="#31bac6" />
-                <stop offset="1" stop-color="#b6509e" />
+                <stop offset="0" stopColor="#31bac6" />
+                <stop offset="1" stopColor="#b6509e" />
             </linearGradient>
             <linearGradient
                 id="linear-gradient-2"
@@ -62,8 +62,8 @@ const AaveLogo: React.FC<AaveLogoProps> = ({ width = 60 }) => (
                 gradientTransform="matrix(54.82 0 0 -80.09 38491.14 62326)"
                 gradientUnits="userSpaceOnUse"
             >
-                <stop offset="0" stop-color="#30bac6" />
-                <stop offset="1" stop-color="#b6509e" />
+                <stop offset="0" stopColor="#30bac6" />
+                <stop offset="1" stopColor="#b6509e" />
             </linearGradient>
         </defs>
         <g id="Group_4051" data-name="Group 4051">

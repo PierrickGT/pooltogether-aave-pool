@@ -77,13 +77,12 @@ const PrizeContainer = styled.div`
 momentDurationFormatSetup(moment);
 
 const App: React.FC = () => {
-    const { active: walletConnected, chainId } = useWeb3React<Web3Provider>();
+    const { account, active: walletConnected, chainId, library } = useWeb3React<Web3Provider>();
     const { modalIsOpen: walletModalIsOpen, toggleModal: toggleWalletModal } = useModal();
     const { modalIsOpen: joinModalIsOpen, toggleModal: toggleJoinModal } = useModal();
     const { modalIsOpen: withdrawModalIsOpen, toggleModal: toggleWithdrawModal } = useModal();
 
     const [currentPrize, setCurrentPrize] = useState('');
-    const [estimatedPrize, setEstimatedPrize] = useState('');
 
     const [mountedAt, setMountedAt] = useState(0);
     const [secondsToPrizeAtMount, setSecondsToPrizeAtMount] = useState(0);
@@ -109,10 +108,13 @@ const App: React.FC = () => {
     };
 
     const getAsyncValues = async () => {
-        const { prizeInDai, prizeEstimateInDai } = await getAavePoolPrize(chainId as number);
+        const { prizeInDai } = await getAavePoolPrize(
+            account as string,
+            chainId as number,
+            library,
+        );
 
-        setCurrentPrize(Number(prizeInDai).toFixed(4));
-        setEstimatedPrize(Math.ceil(Number(prizeEstimateInDai)).toString());
+        setCurrentPrize(Number(prizeInDai).toFixed());
     };
 
     useEffect(() => {
@@ -180,12 +182,6 @@ const App: React.FC = () => {
                                 Current Prize
                                 <br />
                                 <span className="vertical-align-middle">{currentPrize}</span>{' '}
-                                <Dai width={20} />
-                            </StyledTitlePrize>
-                            <StyledTitlePrize level={3}>
-                                Estimated prize
-                                <br />
-                                <span className="vertical-align-middle">{estimatedPrize}</span>{' '}
                                 <Dai width={20} />
                             </StyledTitlePrize>
                         </PrizeContainer>

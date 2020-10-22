@@ -302,14 +302,16 @@ const Withdraw: React.FC = (): any => {
                     </StyledCheckbox>
                     {isWithdrawInstant && Number(form.values.withdraw) > 0 && (
                         <StyledWithdrawMessage>
-                            You will receive {instantWithdrawAmount} Aave Pool{' '}
+                            You will receive {instantWithdrawAmount.toFixed(2)} Aave Pool{' '}
                             {pluralize('ticket', instantWithdrawAmount)}{' '}
                             {exitFee === 0 ? (
                                 <React.Fragment>
                                     now and burn {burnedCredit} from your credit
                                 </React.Fragment>
                             ) : (
-                                <React.Fragment>and forfeit {exitFee} as interest</React.Fragment>
+                                <React.Fragment>
+                                    and forfeit {exitFee.toFixed(2)} as interest
+                                </React.Fragment>
                             )}
                         </StyledWithdrawMessage>
                     )}
