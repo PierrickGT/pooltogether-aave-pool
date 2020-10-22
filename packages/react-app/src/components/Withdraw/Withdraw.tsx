@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { MutableRefObject, useEffect, useRef, useState } from 'react';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { Button, Checkbox, Input } from 'antd';
@@ -21,12 +21,13 @@ import styled from 'styled-components';
 import * as Yup from 'yup';
 
 import TransactionProgress from 'components/Transaction';
-import { DEFAULT_TOKEN_DECIMAL_PRECISION } from 'Constants';
+import { DEFAULT_TOKEN_DECIMAL_PRECISION, TYPE_DEBOUNCE_TIMEOUT } from 'Constants';
 import { formatBigNumberToNumber } from 'helpers/Bignumber';
 import {
     calculateInstantWithdrawAmount,
     getUserExitFees,
     getUserTicketsBalance,
+    getUserTimelockDuration,
     withdrawInstantly,
     withdrawWithTimelock,
 } from 'helpers/Pool';
@@ -110,7 +111,7 @@ const StyledCheckbox = styled(Checkbox)`
     }
 `;
 
-const StyledWithdrawInstantMessage = styled.p`
+const StyledWithdrawMessage = styled.p`
     color: ${yellow[0]};
     font-size: ${fontSize.medium};
     margin: ${spacingUnit()} 0 0;
@@ -152,10 +153,16 @@ const Withdraw: React.FC = (): any => {
     const dispatch = useDispatch();
 
     const [userTicketsBalance, setUserTicketsBalance] = useState(0);
+
+    const [timelockDuration, setTimelockDuration] = useState(0); // in seconds
+    const [timelockBurnedCredit, setTimelockBurnedCredit] = useState(0);
+
     const [burnedCredit, setBurnedCredit] = useState(0);
     const [exitFee, setExitFee] = useState(0);
+
     const [instantWithdrawAmount, setInstantWithdrawAmount] = useState(0);
     const [isWithdrawInstant, setIsWithdrawInstant] = useState(false);
+
     const [formSubmitted, setFormSubmitted] = useState(false);
 
     interface FormValues {
@@ -186,6 +193,25 @@ const Withdraw: React.FC = (): any => {
         title,
         type,
     }) => {
+        let timeoutRef = useRef(null) as MutableRefObject<null | NodeJS.Timeout>;
+
+        const setUserTimelockDuration = async (formValues: FormValues) => {
+            const userTimelockDuration = await getUserTimelockDuration(
+                Number(formValues.withdraw),
+                account as string,
+                chainId as number,
+                library,
+            );
+
+            const { burnedCredit, durationSeconds } = userTimelockDuration;
+
+            const formattedUserTimelockBurnedCredit = formatBigNumberToNumber(burnedCredit);
+            const formattedUserTimelockDuration = formatBigNumberToNumber(durationSeconds);
+
+            setTimelockDuration(formattedUserTimelockDuration);
+            setTimelockBurnedCredit(formattedUserTimelockBurnedCredit);
+        };
+
         const setInstantWithdrawValues = async (formValues: FormValues) => {
             const userExitFee = await getUserExitFees(
                 Number(formValues.withdraw),
@@ -208,7 +234,7 @@ const Withdraw: React.FC = (): any => {
             setInstantWithdrawAmount(formattedInstantWithdrawAmount);
         };
 
-        const handleInput = async (
+        const handleInput = (
             event: React.ChangeEvent<HTMLInputElement>,
             formValues: FormValues,
         ) => {
@@ -229,10 +255,18 @@ const Withdraw: React.FC = (): any => {
         };
 
         useEffect(() => {
-            if (isWithdrawInstant) {
-                setInstantWithdrawValues(form.values);
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
             }
-        }, [form.values, form.values.withdraw]);
+
+            timeoutRef.current = setTimeout(async () => {
+                if (isWithdrawInstant) {
+                    setInstantWithdrawValues(form.values);
+                } else {
+                    setUserTimelockDuration(form.values);
+                }
+            }, TYPE_DEBOUNCE_TIMEOUT);
+        }, [form.values, form.values.withdraw, timeoutRef]);
 
         const fieldHasErrors = form.errors[fieldName as keyof FormikErrors<FormValues>];
 
@@ -267,17 +301,33 @@ const Withdraw: React.FC = (): any => {
                         Withdraw instantly
                     </StyledCheckbox>
                     {isWithdrawInstant && (
-                        <StyledWithdrawInstantMessage>
+                        <StyledWithdrawMessage>
                             You will receive {instantWithdrawAmount} Aave Pool{' '}
                             {pluralize('ticket', instantWithdrawAmount)}{' '}
                             {exitFee === 0 ? (
                                 <React.Fragment>
-                                    and burn {burnedCredit} from your credit
+                                    now and burn {burnedCredit} from your credit
                                 </React.Fragment>
                             ) : (
                                 <React.Fragment>and forfeit {exitFee} as interest</React.Fragment>
                             )}
-                        </StyledWithdrawInstantMessage>
+                        </StyledWithdrawMessage>
+                    )}
+                    {!isWithdrawInstant && Number(form.values.withdraw) > 0 && (
+                        <StyledWithdrawMessage>
+                            You will receive {Number(form.values.withdraw)} Aave Pool{' '}
+                            {pluralize('ticket', instantWithdrawAmount)}{' '}
+                            {timelockDuration === 0 ? (
+                                <React.Fragment>
+                                    now and burn {timelockBurnedCredit} from your credit
+                                </React.Fragment>
+                            ) : (
+                                <React.Fragment>
+                                    in {timelockDuration} and burn {timelockBurnedCredit} from your
+                                    credit
+                                </React.Fragment>
+                            )}
+                        </StyledWithdrawMessage>
                     )}
                 </WithdrawInstantContainer>
             </React.Fragment>

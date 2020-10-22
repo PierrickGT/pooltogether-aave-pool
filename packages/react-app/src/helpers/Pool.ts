@@ -294,6 +294,31 @@ export const getUserTicketsBalance = async (account: string, chainId: number, li
     return userBalance;
 };
 
+export const getUserTimelockDuration = async (
+    daiValue: number,
+    account: string,
+    chainId: number,
+    library: any,
+) => {
+    const signer = library.getSigner(account);
+
+    const aavePoolContract = new Contract(
+        addresses[chainId].contracts.aavePool,
+        abis.AavePrizePool,
+        signer,
+    );
+
+    const controlledTokens: string[] = await nonConstantMethodCall(aavePoolContract, 'tokens');
+
+    const userTimelockDuration = await aavePoolContract.callStatic.calculateTimelockDuration(
+        signer._address,
+        controlledTokens[1],
+        utils.parseUnits(daiValue.toString(), DEFAULT_TOKEN_DECIMAL_PRECISION),
+    );
+
+    return userTimelockDuration;
+};
+
 export const withdrawWithTimelock = async (
     daiValue: number,
     account: string,
@@ -314,10 +339,8 @@ export const withdrawWithTimelock = async (
     const params = [
         signer._address,
         utils.parseEther(daiValue.toString()),
-        controlledTokens[0],
-        {
-            gasLimit: 700000,
-        },
+        controlledTokens[1],
+        { gasLimit: 800000 },
     ];
 
     dispatch(
