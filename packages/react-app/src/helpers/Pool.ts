@@ -26,6 +26,34 @@ export const getNextAwardDate = () => {
     }
 };
 
+export const getPrizePeriodRemainingSeconds = async (chainId: number) => {
+    const provider = getProvider(chainId);
+
+    const aavePoolContract = new Contract(
+        addresses[chainId].contracts.aavePool,
+        abis.AavePrizePool,
+        provider,
+    );
+
+    const aavePoolPrizeStrategyAddress: string = await nonConstantMethodCall(
+        aavePoolContract,
+        'prizeStrategy',
+    );
+
+    const aavePoolPrizeStrategyContract = new Contract(
+        aavePoolPrizeStrategyAddress,
+        abis.SingleRandomWinner,
+        provider,
+    );
+
+    const prizePeriodRemainingSeconds: string = await nonConstantMethodCall(
+        aavePoolPrizeStrategyContract,
+        'prizePeriodRemainingSeconds',
+    );
+
+    return prizePeriodRemainingSeconds;
+};
+
 export const getAavePoolPrize = async (chainId: number) => {
     const provider = getProvider(chainId);
 
@@ -378,49 +406,6 @@ export const getUserExitFees = async (
     return userExitFee;
 };
 
-// export const fetchExitFee = async (
-//   networkName,
-//   usersAddress,
-//   prizePoolAddress,
-//   ticketAddress,
-//   amount,
-// ) => {
-//   const provider = await readProvider(networkName)
-//   const exitFees = {
-//     credit       : ethers.utils.bigNumberify(0),
-//     earlyExitFee : ethers.utils.bigNumberify(0),
-//   }
-
-//   try {
-//     const etherplexPrizePoolContract = contract(
-//       'prizePool',
-//       PrizePoolAbi,
-//       prizePoolAddress
-//     )
-
-//     const values = await batch(
-//       provider,
-//       etherplexPrizePoolContract
-//         .balanceOfCredit(usersAddress, ticketAddress)
-//         .calculateTimelockDuration(usersAddress, ticketAddress, amount)
-//         .calculateEarlyExitFee(usersAddress, ticketAddress, amount)
-//     )
-
-//     // Instant Withdrawal Credit/Fee
-//     exitFees.credit = values.prizePool.balanceOfCredit[0]
-
-//     exitFees.timelockDurationSeconds = values.prizePool.calculateTimelockDuration.durationSeconds
-//     exitFees.burnedCredit = values.prizePool.calculateEarlyExitFee.burnedCredit
-//     exitFees.exitFee = values.prizePool.calculateEarlyExitFee.exitFee
-//   }
-//   catch (e) {
-//     console.warn(e.message)
-//   }
-//   finally {
-//     return exitFees
-//   }
-// }
-
 export const calculateInstantWithdrawAmount = (withdrawAmount: number = 0, exitFee: BigNumber) => {
     let instantWithdrawAmount;
 
@@ -461,6 +446,7 @@ export const withdrawInstantly = async (
         utils.parseUnits(daiValue.toString(), DEFAULT_TOKEN_DECIMAL_PRECISION),
         controlledTokens[1],
         exitFees.exitFee,
+        { gasLimit: 800000 },
     ];
 
     dispatch(

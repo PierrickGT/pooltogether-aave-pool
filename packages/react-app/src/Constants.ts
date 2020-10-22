@@ -30,7 +30,7 @@ export const SUPPORTED_CHAIN_IDS = [
 export const SUPPORTED_NETWORKS = ['Ropsten', 'Local'];
 
 // Replace by your pool address
-export const AAVE_PRIZE_POOL_ADDRESS = '0x210c91c68F31C22Aba8226Fd809615f6386604EF';
+export const AAVE_PRIZE_POOL_ADDRESS = '0xBCCAd3c8BC0E081318F444C15C0263B212b8C7a3';
 
 // Prize Pool
 export const DEFAULT_TOKEN_DECIMAL_PRECISION = 18;

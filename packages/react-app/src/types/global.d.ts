@@ -21,3 +21,5 @@ declare const DocumentTouch;
 declare module '@pooltogether-aave-pool/contracts';
 declare module '@walletconnect/web3-provider';
 declare module 'pooltogetherjs';
+declare module 'moment';
+declare module 'moment-duration-format';

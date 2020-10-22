@@ -206,7 +206,7 @@ const Withdraw: React.FC = (): any => {
             const { burnedCredit, durationSeconds } = userTimelockDuration;
 
             const formattedUserTimelockBurnedCredit = formatBigNumberToNumber(burnedCredit);
-            const formattedUserTimelockDuration = formatBigNumberToNumber(durationSeconds);
+            const formattedUserTimelockDuration = formatBigNumberToNumber(durationSeconds, 2);
 
             setTimelockDuration(formattedUserTimelockDuration);
             setTimelockBurnedCredit(formattedUserTimelockBurnedCredit);
@@ -300,7 +300,7 @@ const Withdraw: React.FC = (): any => {
                     >
                         Withdraw instantly
                     </StyledCheckbox>
-                    {isWithdrawInstant && (
+                    {isWithdrawInstant && Number(form.values.withdraw) > 0 && (
                         <StyledWithdrawMessage>
                             You will receive {instantWithdrawAmount} Aave Pool{' '}
                             {pluralize('ticket', instantWithdrawAmount)}{' '}
@@ -323,8 +323,8 @@ const Withdraw: React.FC = (): any => {
                                 </React.Fragment>
                             ) : (
                                 <React.Fragment>
-                                    in {timelockDuration} and burn {timelockBurnedCredit} from your
-                                    credit
+                                    in {parseInt(timelockDuration.toString(), 10)} seconds and burn{' '}
+                                    {timelockBurnedCredit} from your credit
                                 </React.Fragment>
                             )}
                         </StyledWithdrawMessage>

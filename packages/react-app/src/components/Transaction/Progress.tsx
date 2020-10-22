@@ -11,7 +11,7 @@ import { RootState } from 'app/rootReducer';
 import PurchaseTickets from 'components/Purchase';
 import Throbber from 'components/Throbber';
 import { getEtherscanUrl } from 'helpers/Network';
-import Donut from 'images/Donut.png';
+import AaveLogo from 'images/AaveLogo';
 import Ticket from 'images/Ticket';
 import { green, purple } from 'styles/colors';
 import { lineHeight, size as fontSize } from 'styles/fonts';
@@ -26,12 +26,6 @@ const TicketContainer = styled.div`
     justify-content: center;
     margin: 0 auto ${spacingUnit(3)};
     width: ${rem(96)};
-`;
-
-const StyledDonut = styled.img`
-    height: ${rem(48)};
-    margin: 0 auto ${spacingUnit(3)};
-    width: ${rem(48)};
 `;
 
 const StyledTextLarge = styled.p`
@@ -87,7 +81,7 @@ const TransactionProggress: React.FC = () => {
     if (transactionCompleted && transactionType === 'deposit') {
         return (
             <React.Fragment>
-                <StyledDonut src={Donut} />
+                <AaveLogo width={48} />
                 <StyledTextLarge>
                     <span>You've sucessfully purchased </span>
                     <span>
@@ -114,7 +108,7 @@ const TransactionProggress: React.FC = () => {
     ) {
         return (
             <React.Fragment>
-                <StyledDonut src={Donut} />
+                <AaveLogo width={48} />
                 <StyledTextLarge>
                     <span>You've sucessfully withdrawn </span>
                     <span>

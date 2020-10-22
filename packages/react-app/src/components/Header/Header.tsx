@@ -11,18 +11,8 @@ import { RootState } from 'app/rootReducer';
 import { DEFAULT_TOKEN_DECIMAL_PRECISION, NETWORK_CHAIN_ID } from 'Constants';
 import { getWalletName } from 'helpers/Network';
 import { getUserTicketsBalance } from 'helpers/Pool';
-import EthTraderLogo from 'images/EthTraderLogo.png';
+import AaveBanner from 'images/AaveBanner';
 import PoolTogetherLogo from 'images/PoolTogetherLogo';
-
-const PoolTogetherLogoContainer = styled.span`
-    vertical-align: middle;
-`;
-
-const StyledEthTraderLogo = styled.img`
-    border-radius: 50%;
-    vertical-align: middle;
-    height: 42px;
-`;
 
 const StyledPageHeader = styled(PageHeader)`
     color: white;
@@ -54,11 +44,9 @@ const StyledWalletInfo = styled.div`
 const Title = () => {
     return (
         <React.Fragment>
-            <PoolTogetherLogoContainer>
-                <PoolTogetherLogo />
-            </PoolTogetherLogoContainer>
+            <PoolTogetherLogo />
             <CloseOutlined style={{ color: 'white', padding: '0 8px', verticalAlign: 'middle' }} />
-            <StyledEthTraderLogo src={EthTraderLogo} />
+            <AaveBanner width={150} />
         </React.Fragment>
     );
 };
@@ -118,7 +106,7 @@ const ToggleWalletModalButton: React.FC<HeaderProps> = ({ toggleWalletModal }): 
                     )}
                     {chainId && <span>{NETWORK_CHAIN_ID[chainId]}</span>}
                 </p>
-                <p className="no-margin">{`You have ${userBalance} Aave Pool ${pluralize(
+                <p className="no-margin">{`You have ${userBalance.toFixed(2)} Aave Pool ${pluralize(
                     'ticket',
                     userBalance,
                 )}`}</p>
@@ -137,7 +125,6 @@ const Header: React.FC<HeaderProps> = ({ toggleWalletModal }) => {
         <div>
             <StyledPageHeader
                 title={<Title />}
-                subTitle="r/EthTrader DONUT Pod"
                 extra={[<ToggleWalletModalButton key="1" toggleWalletModal={toggleWalletModal} />]}
             />
         </div>
