@@ -6,7 +6,7 @@ import {
 } from '@web3-react/injected-connector';
 import { NetworkConnector } from '@web3-react/network-connector';
 
-import { POLLING_INTERVAL, SUPPORTED_CHAIN_IDS } from 'Constants';
+import { SUPPORTED_CHAIN_IDS } from 'Constants';
 import { Web3ReactContextInterface } from 'types/web3-react';
 
 const RPC_URLS: { [chainId: number]: string } = {
