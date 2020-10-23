@@ -1,10 +1,8 @@
 import { abis, addresses } from '@pooltogether-aave-pool/contracts';
-import { BigNumber, constants, Contract, Signer, utils } from 'ethers';
+import { BigNumber, constants, Contract, utils } from 'ethers';
 import moment from 'moment-timezone';
-import { calculateEstimatedPoolPrize } from 'utils/PoolTogether';
 
-import { AAVE_PRIZE_POOL_ADDRESS, DEFAULT_TOKEN_DECIMAL_PRECISION } from 'Constants';
-import { getLendingPoolAddressesProviderAddress } from 'helpers/Aave';
+import { DEFAULT_TOKEN_DECIMAL_PRECISION } from 'Constants';
 import { nonConstantMethodCall } from 'helpers/Contract';
 import { getProvider } from 'helpers/Network';
 import { sendTransaction } from 'helpers/sendTransactionSlice';

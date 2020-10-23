@@ -7,7 +7,6 @@ import momentDurationFormatSetup from 'moment-duration-format';
 import { rem } from 'polished';
 import styled from 'styled-components';
 
-import { useModal } from 'components/Modal';
 import { getAavePoolPrize, getPrizePeriodRemainingSeconds } from 'helpers/Pool';
 import { useInterval } from 'hooks/useInterval';
 import Dai from 'images/Dai';

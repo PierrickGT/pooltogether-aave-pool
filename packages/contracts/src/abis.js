@@ -1,7 +1,7 @@
 
-import AavePrizePool from './abis/AavePrizePool';
-import ATokenInterface from './abis/ATokenInterface';
-import ERC20 from './abis/ERC20';
+import AavePrizePool from './abis/AavePrizePool.json';
+import ATokenInterface from './abis/ATokenInterface.json';
+import ERC20 from './abis/ERC20.json';
 import IERC20 from './abis/IERC20.json';
 import LendingPoolAddressesProviderInterface from './abis/LendingPoolAddressesProviderInterface.json';
 import LendingPoolInterface from './abis/LendingPoolInterface.json';

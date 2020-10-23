@@ -32,11 +32,6 @@ import { green, purple, red } from 'styles/colors';
 import { size as fontSize } from 'styles/fonts';
 import { spacingUnit } from 'styles/variables';
 
-const StyledNexDrawDate = styled.p`
-    font-size: ${fontSize.large};
-    margin-bottom: ${spacingUnit(4)};
-`;
-
 const StyledCurrency = styled.p`
     display: inline;
     font-size: ${fontSize.medium};
@@ -120,7 +115,6 @@ const PurchaseTickets: React.FC = (): any => {
     const dispatch = useDispatch();
 
     const [daiBalance, setDaiBalance] = useState(0);
-    const [odds, setOdds] = useState(0);
     const [aavePoolTotalSupply, setAavePoolTotalSupply] = useState(0);
     const [nextAwardDate, setNextAwardDate] = useState('');
     const [formSubmitted, setFormSubmitted] = useState(false);
