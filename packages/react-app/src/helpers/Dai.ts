@@ -1,5 +1,5 @@
-import { abis, addresses } from '@pooltogether-aave-pool/contracts';
 import { Contract, utils } from 'ethers';
+import { abis, addresses } from 'pooltogether-aave-pool-contracts';
 
 import { DEFAULT_TOKEN_DECIMAL_PRECISION } from 'Constants';
 import { nonConstantMethodCall } from 'helpers/Contract';

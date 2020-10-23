@@ -1,6 +1,6 @@
-import { abis, addresses } from '@pooltogether-aave-pool/contracts';
 import { BigNumber, constants, Contract, utils } from 'ethers';
 import moment from 'moment-timezone';
+import { abis, addresses } from 'pooltogether-aave-pool-contracts';
 
 import { DEFAULT_TOKEN_DECIMAL_PRECISION } from 'Constants';
 import { nonConstantMethodCall } from 'helpers/Contract';

@@ -18,7 +18,7 @@ declare global {
 declare const DocumentTouch;
 
 // TODO: need to find a better way to handle types
-declare module '@pooltogether-aave-pool/contracts';
+declare module 'pooltogether-aave-pool-contracts';
 declare module '@walletconnect/web3-provider';
 declare module 'pooltogetherjs';
 declare module 'moment';
